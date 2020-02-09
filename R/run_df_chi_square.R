@@ -1,0 +1,88 @@
+
+
+library(tidyverse)
+
+# Purpose of function is to:
+  # 1. select all categorical variables from a data frame or tibble
+  # 2. apply chi-square test for independence to each unique pair of variables
+  # 3. print results to the console
+
+run_df_chi_square <- function(df, alpha = .05, ...) {
+
+  # perform checks on the inputs
+  
+  if (!is.data.frame(df)) {
+    
+    stop("df must be a data frame")
+    
+  } else if (typeof(alpha) != "double" | alpha > 1 | alpha < 0) {
+    
+    stop("alpha must be a numeric value between 0 and 1")
+    
+  } else if (
+    
+    df %>% 
+    dplyr::mutate_if(is.character, as.factor) %>% 
+    dplyr::select_if(is.factor) %>% 
+    ncol() < 2
+    
+  ) {
+    
+    stop("df must have at least 2 categorical variables")
+    
+  }
+  
+# select only categorical variables and convert to dataframe 
+data <- df %>% 
+    dplyr::mutate_if(is.character, as.factor) %>% 
+    dplyr::select_if(is.factor) %>% 
+    as.data.frame()
+
+# isolate variable names to iterate through
+vars <- data %>% 
+  colnames()
+
+# intital message 
+print("Chi-square test for independence applied on all categorical variables:")
+  
+
+# nested for loop to apply chi-square test to each unique combination of variables 
+  for (i in seq_along(vars)) {
+    
+    for (j in seq_along(vars)) 
+      
+      if (i >= j) {
+        
+        next
+        
+      } else {
+        
+        
+        chi <- stats::chisq.test(data[, i], data[, j])
+        
+        
+        print(paste0(vars[i], 
+                     " and ", 
+                     vars[j],
+                     ": ",
+                     if (chi$p.value <= alpha) "Independent" else "Not Independent",
+                     " with a p-value of ", 
+                     round(chi$p.value, digits = 3)))
+        
+      }
+    
+  }
+  
+  
+}
+
+
+# tests 
+check_independence(MASS::survey, alpha = .05, correct = F)
+
+check_independence(gapminder::gapminder)
+
+check_independence(diamonds, alpha = .05)
+
+
+
