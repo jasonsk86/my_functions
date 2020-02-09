@@ -78,11 +78,11 @@ print("Chi-square test for independence applied on all categorical variables:")
 
 
 # tests 
-check_independence(MASS::survey, alpha = .05, correct = F)
+run_df_chi_square(MASS::survey, alpha = .05, correct = F)
 
-check_independence(gapminder::gapminder)
+run_df_chi_square(gapminder::gapminder)
 
-check_independence(diamonds, alpha = .05)
+run_df_chi_square(diamonds, alpha = .05)
 
 
 
